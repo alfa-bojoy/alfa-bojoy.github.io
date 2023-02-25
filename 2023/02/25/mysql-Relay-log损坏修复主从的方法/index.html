@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 5.4.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" integrity="sha256-Z1K5uhUaJXA7Ll0XrZ/0JhX4lAtZFpT6jkKrEDT0drU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"alfa-bojoy.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.14.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="这是一篇加密文章，需要密码才能继续阅读。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="mysql-Relay-log损坏修复主从的方法">
+<meta property="og:url" content="https://alfa-bojoy.github.io/2023/02/25/mysql-Relay-log%E6%8D%9F%E5%9D%8F%E4%BF%AE%E5%A4%8D%E4%B8%BB%E4%BB%8E%E7%9A%84%E6%96%B9%E6%B3%95/index.html">
+<meta property="og:site_name" content="成步堂的笔记">
+<meta property="og:description" content="这是一篇加密文章，需要密码才能继续阅读。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-02-25T19:34:43.000Z">
+<meta property="article:modified_time" content="2023-02-25T11:34:43.998Z">
+<meta property="article:author" content="成步堂">
+<meta property="article:tag" content="all">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://alfa-bojoy.github.io/2023/02/25/mysql-Relay-log%E6%8D%9F%E5%9D%8F%E4%BF%AE%E5%A4%8D%E4%B8%BB%E4%BB%8E%E7%9A%84%E6%96%B9%E6%B3%95/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://alfa-bojoy.github.io/2023/02/25/mysql-Relay-log%E6%8D%9F%E5%9D%8F%E4%BF%AE%E5%A4%8D%E4%B8%BB%E4%BB%8E%E7%9A%84%E6%96%B9%E6%B3%95/","path":"2023/02/25/mysql-Relay-log损坏修复主从的方法/","title":"mysql-Relay-log损坏修复主从的方法"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>mysql-Relay-log损坏修复主从的方法 | 成步堂的笔记</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">成步堂的笔记</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-overview-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="成步堂"
+      src="/images/cbt.webp">
+  <p class="site-author-name" itemprop="name">成步堂</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">166</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://alfa-bojoy.github.io/2023/02/25/mysql-Relay-log%E6%8D%9F%E5%9D%8F%E4%BF%AE%E5%A4%8D%E4%B8%BB%E4%BB%8E%E7%9A%84%E6%96%B9%E6%B3%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/cbt.webp">
+      <meta itemprop="name" content="成步堂">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="成步堂的笔记">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="mysql-Relay-log损坏修复主从的方法 | 成步堂的笔记">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          mysql-Relay-log损坏修复主从的方法
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2023-02-25 19:34:43 / 修改时间：11:34:43" itemprop="dateCreated datePublished" datetime="2023-02-25T19:34:43+00:00">2023-02-25</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <div class="hbe hbe-container" id="hexo-blog-encrypt" data-wpm="抱歉，您输入的密码错误，请检查后重新输入。" data-whm="抱歉, 当前文章不能被校验, 不过您还是可以看看解密后的内容。">
+  <script id="hbeData" type="hbeData" data-hmacdigest="786b8933a4a94b15d979d1442bef0617e0b9b33c1e245795a663682b201acda7">be98d44b8b9cbdd31c974c3920e3c556434ca2299e987d5bf012570e12f60df67a9913092da362a2a3b3aa14d42aaad15f41821ecd98832e172349ab20478ffac68aef22f9293652db04fb4481eb35d6ba4aeec6152c8f815952d61f4cae284ffd03113089e1ee0dbc8113038773977b4ab1e7da96187b2d8eb98173d87b9aacccf9c18314a18d081b021cda3e8ee2d76c516f59c45634ddca7a29b2b3340269bbf68baf9d87e5b4b28049210d8ba9df3ae01a96a0ec4b9c760993c7a239d689b48b9c3067dbe0756d25dc84f5eb21c1d11113d4761585fe5abec5e95340ff1993b38299a0094560be7302b683e7daae67ac308380a5e4d5797c26b86c3f744f7ce0f6e683fd60004d84cb4341c4eba2777da72ea694905619dd448525e7d4fd4c305277bb5501f089187832f2d847bd6b75b169d845550ffd06e9c67f7a2beaab9313fc64b8dca0f236c426d3c91cb231538bd320c945f296733895b091df9717e31da53348cb819686f0d13e7bdddc9fd551bf882bdee59d275a51f937d3e6ff6d3e9783a1bd52cf58f9b4618480ba89e77bf930b6bb59d04a91fb52de79aac5c672e7d184df965b9d51e73ee23a6ffa2f5d571d4513a060a7206fde1ff74543a0e93bb02a25b34a111b5b0e748b86f49b7c34da60c04670f10f24d2d6caa64db4e85593898d2f2b399cb0638fcba7d28fec2fc904e6b3d8b3e048f46a04bbaa39c55ca8851badf90f17a569868568f93dc14736588e943f2aaa552a1d486213c7f9bc65c54edd94bc8aa906e96838a14d7026fd5af0f3b463460b2ecd8b4b200f72ef4f731a1ba52629bc058ac279b2adc5bf5611fa443603d9fae9f3b1bff8e8da51e1a1fa88b3b50e5ecbe1c295218746ee3fa7093fa14f3cd565d13f5b83996658050165e98bf6a043c3be6a19bba44c72cdbcc2fd578193a02aeee1ef8f9a2aa25ae6f215328f055a2b2139a872f8e70060fa6f266413f3d0b570ebf214bd2c4db02ae1cb165ce64bece1315d4243f4f3e6422d5f639293cbf8bdf9c433293325e459ec2cc7822947ff5385b25af04e38e8e501fca3f6353b9b7b5407006a27703297583903d39f0d3c76a0c690bc68217ba697261273b09e16fb805400bbf1911a0b2a1a3a99b8606ffb125c9c8c08b3ea108b4e4b2469fdd0d2931a5d6122ed5a399f76dea6dd59e931c9b5e7ab9365a7b1b2395caa7c48236d752bc7aa939a83f22aa87c052c0570bf9b65dd335096d92ca7b21ddc7a37dda9835828b00ecffb971dc1652a94c5ca35b25c2a80be4310639deb83026f6691354eb51a77eeff8ed596a37b7ea5c940eedf02c875fa7acf5673f17c682910ac5d1f43d19d161836c1dda29157fce4d06efbfe0e12410771f2468b619d31af81fd90a6ac522fa69c78bad42f21120c142d4c6cb685727e629bce42534f21a2957fe67d6743713b7c8a9ca05c2da80b2bb9eea5f1a9ae2bd074506fde2e482f0ab482f86c08cf52a1bbdbde8c7b484964761eb0f13116268881323097834cc3ffe01c8b10f74d3b73c4fd49b71678633c47ac5f55838580ab44a7b6beb8847eb449dc5fef99999a9c18b59480b7ac94ca5efc72675e8295401050fffd74268727dcdcc2018b76e6b0b88cd41cfd35147484dfc7c9c495814b516bb144615dabad97c6ab7999537e2cc91c910a745cf13e97a3ad94d7747c708b4939d047e787a906678dae338078f84cfffb14cb1d04e5aa06bdf17b3e71c9ba3805dc9748b0cf6b523996ae9c7d3d0cc14e11660c734f76b51e788575dfa4ea3c7183b67e85bf2b130897e18ff5500c301d04a8ab50d1d55436104cf528ee24b8183d84e8cad9ebd8aa312feb1b9d89d906ec032320ff379e97ac3487a0b0f97bb6d1a3231e27d58ffb6f6836d756d284f16114bdf9dee9fd3647de3770005e4d78df03fa537f2693e273d54cf5e18096ccf0b84670e987b3c5f0f6d0cd5024fd0b7f3e4978e215080da3ba367dccb6cd4b6df068a0e1d3728213a186e01913afe55e45ba9939cb68ac4af632afc1793e84d698dc5a37a834e997dbab92211f05cce1019a125df58557e756d23d7721fce643a4da038fc0f8d7ad0636000ca841cf8d41f442b549c1b47226a150ac6108da62ae2226c75fd1aa42d39007d5cd47c4628d99a272bed6c988ad1602601ceedf58add5c2ac5900c3ddb03f1643d88680f6de37e2fc39b639573bb1e8ed8b3489de70537e5445e0a8fd7dee9b808db2c93d08a2c381cf8c8443b8b51d3086fb043f47d480974a4309d52a5ea330ad05da2dbb58ea712c9ddb5291b5974bbede4b8eafe2b418e4b3e40ae79b76f7a9d20d945ae798dfba5c7def88e3d9754b7ad7b346f39706b524ab1d7a90ae8dfb6d5cb88b108cd7d18ad67f569a40511f1d149e9aa581ee3a9bfa305e80aa7adea33d1b8e8d8c493aecdaf5036aabd21dd00cb6fa7abce8e841a00f60b7a234fe08cbed1159f98d3f14cfb17e84c6fdc4c4964eda9f8630d46c029287ddf0458641bde364f992e711c404135d6d785cef8f50e9d651a2b19b05e5a64d1ab5593548312dcd268a684a7eb6beb6de9902e0d790feace16d2d7e60c3e47756baf9ee200110509611f74ddf1bbc8e9d0931b4ec6ac97a46f1a72551c9d048f3a348d709eba9ecdbad0140e712f9f27cf04c21d5bff7af082c948d7805c288994d52b73ab144b8831e4b2aa422ea0f55f000f0b1108ffc9676070a461f175f9163fdd8ef63690d8980d712499c478d3b46042be6d28d6716378bf7acb03d81595066a8bb09b5b6d49ad3c85c12ed1dd58a491c1d8c9820f74be75e61ba5a2b8edfa5b5ce1727cb583ab30e3ddc4f4d78f32455e0adc45d5fabc750a103f6e37115b96f31adad5c4000635f8f432a50a083e23e43f25265a057be19e20284868621405e54b8c9e635eef849b8e70e3de953e72ac23d3eb8307e36697282a0b711de45035c1106772b1980124b1b04c0ce7c34a1ea9212be127e2cf6055e8ffb2e4c519a765cf366f6ad39651a4c</script>
+  <div class="hbe hbe-content">
+    <div class="hbe hbe-input hbe-input-default">
+      <input class="hbe hbe-input-field hbe-input-field-default" type="password" id="hbePass">
+      <label class="hbe hbe-input-label hbe-input-label-default" for="hbePass">
+        <span class="hbe hbe-input-label-content hbe-input-label-content-default">当前文章暂不对外可见，请输入密码后查看！</span>
+      </label>
+    </div>
+  </div>
+</div>
+<script data-pjax src="/lib/hbe.js"></script><link href="/css/hbe.style.css" rel="stylesheet" type="text/css">
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/all/" rel="tag"># all</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/02/25/nginx%E4%BD%BF%E7%94%A8tcp%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F%E4%BC%A0%E9%80%92%E5%AE%A2%E6%88%B7%E7%AB%AFip/" rel="prev" title="nginx使用tcp代理模式传递客户端ip">
+                  <i class="fa fa-chevron-left"></i> nginx使用tcp代理模式传递客户端ip
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2023/02/25/mongo%E5%85%A5%E9%97%A8%E5%91%BD%E4%BB%A4/" rel="next" title="mongo入门命令">
+                  mongo入门命令 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">成步堂</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 5.4.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" integrity="sha256-Z1K5uhUaJXA7Ll0XrZ/0JhX4lAtZFpT6jkKrEDT0drU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"alfa-bojoy.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.14.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="这是一篇加密文章，需要密码才能继续阅读。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="salt基本使用说明">
+<meta property="og:url" content="https://alfa-bojoy.github.io/2023/02/25/salt%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E/index.html">
+<meta property="og:site_name" content="成步堂的笔记">
+<meta property="og:description" content="这是一篇加密文章，需要密码才能继续阅读。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-02-25T19:34:46.000Z">
+<meta property="article:modified_time" content="2023-02-25T11:34:46.374Z">
+<meta property="article:author" content="成步堂">
+<meta property="article:tag" content="all">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://alfa-bojoy.github.io/2023/02/25/salt%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://alfa-bojoy.github.io/2023/02/25/salt%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E/","path":"2023/02/25/salt基本使用说明/","title":"salt基本使用说明"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>salt基本使用说明 | 成步堂的笔记</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">成步堂的笔记</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-overview-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="成步堂"
+      src="/images/cbt.webp">
+  <p class="site-author-name" itemprop="name">成步堂</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">166</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://alfa-bojoy.github.io/2023/02/25/salt%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/cbt.webp">
+      <meta itemprop="name" content="成步堂">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="成步堂的笔记">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="salt基本使用说明 | 成步堂的笔记">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          salt基本使用说明
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2023-02-25 19:34:46 / 修改时间：11:34:46" itemprop="dateCreated datePublished" datetime="2023-02-25T19:34:46+00:00">2023-02-25</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/salt/" itemprop="url" rel="index"><span itemprop="name">salt</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <div class="hbe hbe-container" id="hexo-blog-encrypt" data-wpm="抱歉，您输入的密码错误，请检查后重新输入。" data-whm="抱歉, 当前文章不能被校验, 不过您还是可以看看解密后的内容。">
+  <script id="hbeData" type="hbeData" data-hmacdigest="2aebb50f68a52f123ea470d91885ae8579571fda3e3b22894619230816d05c22">be98d44b8b9cbdd31c974c3920e3c556f46e55aa2f8c4c7b30132bb39a5310004119e1e857e8d074dc4b066ef477bd1eb2cc353273686c5af69988c071bdf37429d4c4c3e90fc3ec82c7a0fba3f19b43df52efe19fa18653fdb45e96ed2c8a5069d9f87a1de78b186e490290a34351934d30b8563962963bbe3f463d309c684b1804c854598e82f0808496362996698fbcc3dc39be68b4a4d52da97b5eeac3ddc9c623544d52f19332f535d9883ad9236f4c077c33ee6ce435f1cf1002abe8ae8826c68750601f79990dab80204a80643c0aa7008fa5a23bf43af606f37d8204ba2953b8c73a0a20b1ae5d27ede7ca7a3410677cbdb8c89b94b9f112408aba7bd7365bcc1f02e00511ebf8ec272175204732c56b3b0bb990a63cd01a3f8985b6485470f76eb0500e9c3a0f46fe1760ab01e1c0ea0629e84f39f8253fd671f3a0a75f3b19d931ba155f891097056661d42f74ff6cbff1076e035f843b030ee166e0733cd5f8b898bcbe7def813f89cd25caa4594a044e14b750e5f8c4b102a8408cbf6b136cc5a3f4d0bc8cb24d999dadcde39e7a5b9f9c1266fcaacddcaa2610a52b24e01b25e4788e597292b60756ed603cda60fab43d255d74551892fe5f7da9f97f943f4fd33bda1a997dab877757d686a99e5d202a6cab6e44cf99265e84b8ddfcf23606e27a46185137489da9a39ce95bafa2d8b579d3097b55043cc582b0955350b66092b8c6a81ca2ee3e2a5d2c263f3d7e77621b7d6a06b855b08865ea20ba07790141e1b1bb261875e98df1840f10984872b5c159c0552f4820759a13cab8a5eb0f23e1cd574fd8ef009df58ba3bca188671d5afb33b1d0359db9f54802ea6728ad66294503eb5e278751f71624e662bf1833b34d5b195c15115f767fb0c7bb06ec38adbbcba84a872034e50947600592edaab650031f738ade4a067c208e9497eb99e79b9851dc00915425f3bad2f4f5b5f82b9480586c2222d257438cc19e3cea2e6903b5fa74977c6a9733ca7fbe30012c6ac1d5484ea78ea8d687bd3b0233d525250a87b0e51ab1d17e5368f3c41f4ff51c502fc9ec226940c62e6b7ab452d84f72bd617367d56a7dd2f2c20227eb228574f2dc17e92400f7cac17eaec4acf368f8176399999aaced2bc2e1ae4aecd116802c8d5c2eeceaae883f57e15e6c39c3b62256e1c3ec91f07f64d16891a308e933985ba84e7f96b56b4e8dcb9e5e2b13e472dad62b4a52f5c1714d245fa5930be3d19be21899f0834dc592a0fcb1c9c945ae705f5087ce87a6eea68f53baac40a3fc61eebcd44f203be47f6a233c1ce99e5cd0ba0ec7725b27746cb85a603ca2180e33f61f39bd813246b752896f33398905c288010ba5aa6e06d6150500eca1d74de90aff11081ae393375c08f2e93dd944e010c1a15b8f0b6d2a76b374a79da25210b6a97023ed2a8f8adac9846f28c6443694e54c331c38f573767ca16576f9556031b36a0b8eba062f1b32ca4b4d75fb64231b8b0b0512ff93e4dd969f5b1af2f018b200c78187c15656789a4f9a8db6e9514ade53dc724324a8ebdf5054a5a086b2541ee696302841a6355e7afdc50880fe175350f24fe340d75c35d30cee3e6e22483812728fa7dd639c168b804873991e2dbef6d04d8f19c09c58d104815f777e418b60c72861eb03e345c1a35d091a67e5d8a8ad1078c3eb60823213317407c861d59be026a1f4e5ababf622a0ebfe97c148d770a94ca22099b1db8b0469e4166538e86fd84b68f4cc51a6bb29c43f1a6df31564349c2885f398743671b5e6595603806753a92bb7451bfdbcf10622dfd1c614e546da6832d88f8f2a352a8fce22de608efc9ab203ce05941ef0ecec292b534113c85ce2d43efc24105801081dc4908327edd9463147d6e1debc8ed776c0017512ca252991cc83865e2af2c33a07134b12509bdde31faae4f71ee1943b6a62bd30618814a80351a419849fa739c01c4efa0c5a9504713495841077cb80061185daf7216dab91cdc0451d4f2c841a1e452cf841928c749d5fc5ff98012c504d417398f782c1d1051d0b9aa855c9abcaa885c52a2e92f6776ada0fccb3b16cbcc44da3e61e40e22a580de005e3493a88a4c1454311ed62575019b86d543fd90e7fb8f51058b5931c10a127f69d81c0fc5460427c243ecd8189bd2ebdb281d377fa99afc5322cd10070b4753d76c14d8c12ad221c28aa73fa6d7c31eceac864bf4924d1d02f6b8a10eb7b1b19917405697b670f41fd64ea052b065ec58cdaa930c35ab171c0bae49c0cb01271ef62964f809eb690571540e472f24bef81bd65696739de00f269c0a130bd034cf425580be3d9339c2b0f943a595567559350165f045c37e257ea3beba559bd128117c8e81a0644c21702cb01ec47c2f28196f2c0ef6b23f28ac575e9ddf7260156361c6be8a92504f3e47583f93e48865ccc8724bac255fa777beaa45733ac2f675272bef7021327e639db533cbb53a1a5662c90d1405c360747272652cf9ede7c7669ec8d30422fc9057d9c6e23cc5fa23d8cc5160b388c63a111dcab5f18f24f58f9843e4da91e1e16bff5877b9a101fb9af5c26b8c36699e042e418af3e3bc224c4769e66ac4461660ee7302dfc7b1c6187f959be97c088180f47e7f06fa1123673cf0adcff0de352a832f47164ad46d56472235c4e140a00cce8a008be51f4822f314e97aac4813375533da8737b655029b082cec3cd0e48b253f96d185134dceecb76d075d2a351c72f94e4c51e0cbe6bf8f13f3e6ef11594eaa599d5ce75e21059be9d2d9080bded84dda6fbbb79d3e2f250c187cb625e0de1e57f7c480219057139fd925cabb51677ce5ae9b1ec1b4ba88f4e4a6948ec7d7a62a50c9a9df47d68d77f7e795a67d1727e768503708dc4596d615225f465692c0d6eac1398c3be53ff57139f8375188bf0e334d6e9a6fbc55d1db4b7e69949231f19bbbd4501a5e8e428f5c1a629b28ea1a9e13ddbd418f7a5bfe5007bf160df52aecc3650b16f0ac9a84996efa38698cc729afdeec21a1a23a903623e8e5520183ca89841aef577d661b61b3d9514efdd53392b31db6ec309d5c3d68c8bb52228328f19e6845980044331979ee0f4f242f9f02c406ac36cad00e3d867be5d29cd330d6812dafaffbf74d3cc14413f70d3ec1452c3bffc75986e55f2b1050b87343a4267955b56dd9939dd2f4560bf72e245cae58e4645a00302f3559533c9ac1a2895a177561cf3da6da7bf9649d75478a689429097bf8b9720f88752c011afce197969cccdbae77b4ecbcff95734a9d6ec249b5380748ec1b059bb1a8546ec0b64006ce1c46ea73bc4f1a6d59ed5e54582b7ebd55afd1e412f269d8d501cffc988f73bf14ad95b3e47d7dac5679686fa5ca1544d27c62d5de502923a7fa79853a2ead9643f0af5a6ac8b60867d797e4d0ebd9679d7161c57da22a0cbd619da1b04f4f64d3aee0791818eaed95f58080ad090796e913389d6a5c5fcb03bed08486283dfb7c458d1292dcfb2a1319152860d9b62f233b85d71f544806190dfb548ef8fb6d3a717ea9d971e9a7f315d79778ee8b873615bd0b16c188ad502a6e3d3dc06a5de5f8c795e564b86822d024ac5d60ee3900891fac8105bd63423e73627a0e99ab1e5f5bb84e22985a26f245ce47782b57eb60140b375dbde3786af2c22a9b492a920575ee18a5e0cabafc6e4cdd1bd5933bde69d666076e2cc58c02ad2d90f1f5d2a38063e1a1bda13cea38dc9e58d767e9dc7421b325b2a2299ddcb8c85a311498781260544791ccbb92bf7b181fed0ce045d1c61b26dc8db437429d006a9adfdde396abd33cc50559cbe6c03d1c1ac3273719aa67f8def9dfac82c03271394df3ad7a57ebc1d04b38b08f2a72053888fb5f489e216614c20efb7cc5c8ae914bfe6fc380c0fd06fc2a681078939171ccff17087080f8cccd3f227d1339208b4050dd4b21a29861e8d772c25a7ebc51c9383d43fb5bd13ab610ba46bf9e612393899b0535e441cc87e94074c84a70c9e2e99eb2519e1b46ec2949146ac80d8c9c8a107e728e00cb6c554fb980dc8a0da0bf80750f11e42bd1257fffeab32458ce7cd86b83a3c66750854aba8e931866975ee237916b2578a2767535ce804adfc81284424c84cd9c8a0384a03b28682a7f751b69d9b78a8b25ab2488628adbb5b297ad3b36dbc9e07e05fcc74e2fcd7215a1e67dd8626ba0b64982f315c97e83ad1941d224e3edc71130b39b90b12ea84025517a02c2fe20bac913b37581928c576f52e236a61cc64a374b25c9d0de98bd3512b570ed7fbe864780cdc96179fe7be4353cc1575fa044810a6fa68e09e60f38f30b46deb6e35aab7ee9e490ba9af50860c7627443eb3ee3ad00f6c714b0841748bb3034af364352b5203ad490507aeaacc553c416bf09ddcabefb2856d7eabf11e8448884cc53547415d6b1cde8b14a785ab62319411cbe44995fd147b00ba2db0f72f1f925701278c0e03814058a791aed755b8c9910712389eba4182b535ed0afa5f25f4c2b0b755557aedab8ba33a62f6ad5462cce63b87fc05e39d6499494d48bf96a51c61875690221b6955657881ab11ad355f0587597cf37cfa7ecbd29cec0aa06f2da8686bc04a5794cd2f2874ca22042fdf0795faed13723275d8fe9fbb8071119b0ad6733ec0960552762499fdff22c032b06bd938e381f3ddb9955a8d0651ad102fb667067964562a0ce048b67c0b83b26b173b1b12da97b5fd63e36999792c2e9a5fda89b7e0bb8b0c28fae0134a3a967c65ab54c32547bdbfb29e42234074b91dc94aa13c5a4bb40931e192d6bcf000bb6a10007429f0f80485908a49ec15a2df7545903861306504485d917d30228ad6df50fe4a35a35e1ce176c02a3fca3a54d03fcf00883d0865c9eff08c80dfdd9662e88f41897f29333f7ed7001ac829405ebd1109740e160e65cbd0adc0d6bd4d61e02a6a0afd5c1670db38442a2c550263c13fa93eb3f6a14d6285c637ac3d016e9fe332cab0c970577564134c1caf2340f9ab2716e40c5c5208750b5804</script>
+  <div class="hbe hbe-content">
+    <div class="hbe hbe-input hbe-input-default">
+      <input class="hbe hbe-input-field hbe-input-field-default" type="password" id="hbePass">
+      <label class="hbe hbe-input-label hbe-input-label-default" for="hbePass">
+        <span class="hbe hbe-input-label-content hbe-input-label-content-default">当前文章暂不对外可见，请输入密码后查看！</span>
+      </label>
+    </div>
+  </div>
+</div>
+<script data-pjax src="/lib/hbe.js"></script><link href="/css/hbe.style.css" rel="stylesheet" type="text/css">
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/all/" rel="tag"># all</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/02/25/salt%E8%87%AA%E5%AE%9A%E4%B9%89grains/" rel="prev" title="salt自定义grains">
+                  <i class="fa fa-chevron-left"></i> salt自定义grains
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2023/02/25/salt%E4%BB%BB%E5%8A%A1%E7%BC%93%E5%AD%98%EF%BC%88Job-Cache%EF%BC%89%E7%AE%A1%E7%90%86/" rel="next" title="salt任务缓存（Job-Cache）管理">
+                  salt任务缓存（Job-Cache）管理 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">成步堂</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>
